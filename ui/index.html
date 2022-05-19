@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>oxvs/oxvs-encrypt</title>
+
+    <style>
+        textarea {
+            resize: none;
+        }
+    </style>
+</head>
+
+<body>
+    <form action="cipher" id="_s1">
+        <textarea name="input" id="input" cols="30" rows="10"></textarea><br><br>
+
+        <input type="checkbox" name="optEncrypt" id="option-1" checked>
+        <label for="option-1">Encrypt</label><br>
+        <input type="checkbox" name="optDecrypt" id="option-2">
+        <label for="option-2">Decrypt</label><br><br>
+
+        <button id="submit">Submit</button><br><br>
+    </form>
+
+    <textarea id="output" cols="30" rows="10" disabled></textarea><br><br>
+    <button id="new">New Set</button>
+
+    <script src="src/js/main.bundle.js"></script>
+    <script src="src/js/runtime.bundle.js"></script>
+
+    <script type="module">
+        import * as o1 from './o1.js'
+
+        const objects = {
+            input: document.getElementById('input'),
+            output: document.getElementById('output'),
+
+            form: document.getElementById('_s1'),
+            option_1: document.getElementById('option-1'),
+            option_2: document.getElementById('option-2'),
+
+            new: document.getElementById('new')
+        }
+
+        // when option_1 is checked, uncheck option_2 and vice versa
+        objects.option_1.addEventListener('change', () => {
+            if (objects.option_1.checked) {
+                objects.option_2.checked = false
+            }
+        })
+
+        objects.option_2.addEventListener('change', () => {
+            if (objects.option_2.checked) {
+                objects.option_1.checked = false
+            }
+        })
+
+        // if no options are checked, check option_1
+        objects.form.addEventListener('submit', (e) => {
+            if (!objects.option_1.checked && !objects.option_2.checked) {
+                objects.option_1.checked = true
+            }
+
+            e.preventDefault()
+        })
+
+        // handle form submit
+        objects.form.addEventListener('submit', function (e) {
+            e.preventDefault()
+            const cipher = new window.OXVSCipher.OXVSCipherHandler()
+
+            // if option_1 is checked, use cipher.encode
+            if (objects.option_1.checked) {
+                cipher.encode(objects.input.value).then((data) => {
+                    objects.output.value = data
+                })
+            } else {
+                // if option_2 is checked, use cipher.decode
+                cipher.decode(objects.input.value).then((data) => {
+                    objects.output.value = data
+                })
+            }
+        })
+
+        // create a new OXVSBrowserHandler when "new" is clicked
+        objects.new.addEventListener('click', () => {
+            const handler = new window.OXVSCipher.OXVSBrowserHandler()
+            handler.createSet()
+        })
+
+        // timeout to set the currentSet
+        setTimeout(() => {
+            window.OXVSCipher.updateSet(o1.default)
+        }, 100);
+    </script>
+</body>
+
+</html>
